@@ -1,8 +1,18 @@
+# This is the builder container
+FROM golang:latest AS builder
+WORKDIR /app
+
+ADD . /app/
+
+RUN make build
+
 FROM alpine:latest
 RUN apk add --update ca-certificates
 
-ADD ./transmission-exporter /usr/bin/transmission-exporter
+WORKDIR /
+
+COPY --from=builder /app/transmission-exporter /app/transmission-exporter
 
 EXPOSE 19091
 
-ENTRYPOINT ["/usr/bin/transmission-exporter"]
+ENTRYPOINT ["/app/transmission-exporter"]
