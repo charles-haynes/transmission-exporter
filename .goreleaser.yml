@@ -1,0 +1,33 @@
+before:
+  hooks:
+    - go mod download
+    - go generate ./...
+builds:
+  -
+    env:
+      - CGO_ENABLED=0
+
+    main: ./cmd/transmission-exporter
+
+    binary: transmission-exporter
+
+    asmflags:
+      - -D mysymbol
+      - all=-trimpath={{.Env.GOPATH}}
+
+    gcflags:
+      - all=-trimpath={{.Env.GOPATH}}
+      - ./dontoptimizeme=-N
+
+    goos:
+      - linux
+      - windows
+      - darwin
+
+    goarch:
+      - amd64
+
+release:
+  github:
+    owner: ddymko
+    name: transmission-exporter
