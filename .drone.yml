@@ -57,6 +57,11 @@ steps:
 #    event:
 #    - tag
 
+- name: fetch
+  image: docker:git
+  commands:
+    - git fetch --tags
+
 - name: release
   image: golang
   environment:
