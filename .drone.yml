@@ -23,38 +23,48 @@ steps:
   - make lint
   - make build
 
-- name: docker-master
-  pull: always
-  image: plugins/docker
-  settings:
-    username:
-      from_secret: docker_username
-    password:
-      from_secret: docker_password
-    repo: metalmatze/transmission-exporter
-    tags:
-    - master
-  when:
-    branch:
-    - master
-    event:
-    - push
+#- name: docker-master
+#  pull: always
+#  image: plugins/docker
+#  settings:
+#    username:
+#      from_secret: docker_username
+#    password:
+#      from_secret: docker_password
+#    repo: metalmatze/transmission-exporter
+#    tags:
+#    - master
+#  when:
+#    branch:
+#    - master
+#    event:
+#    - push
+#
+#- name: docker-tag
+#  pull: always
+#  image: plugins/docker
+#  settings:
+#    username:
+#      from_secret: docker_username
+#    password:
+#      from_secret: docker_password
+#    repo: metalmatze/transmission-exporter
+#    tag:
+#    - 0.3
+#    - 0.3.0
+#    - latest
+#  when:
+#    event:
+#    - tag
 
-- name: docker-tag
-  pull: always
-  image: plugins/docker
-  settings:
-    username:
-      from_secret: docker_username
-    password:
-      from_secret: docker_password
-    repo: metalmatze/transmission-exporter
-    tag:
-    - 0.3
-    - 0.3.0
-    - latest
+- name: release
+  image: golang
+  environment:
+    GITHUB_TOKEN:
+      from_secret: github_token
+  commands:
+    - curl -sL https://git.io/goreleaser | bash
   when:
-    event:
-    - tag
+    event: tag
 
 ...
