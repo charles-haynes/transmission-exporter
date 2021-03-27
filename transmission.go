@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	"github.com/metalmatze/transmission-exporter/config"
 )
 
 const endpoint = "/transmission/rpc/"
@@ -21,6 +23,7 @@ type (
 	Client struct {
 		URL   string
 		token string
+		Name  string
 
 		User   *User
 		client http.Client
@@ -28,9 +31,17 @@ type (
 )
 
 // New create new transmission torrent
-func New(url string, user *User) *Client {
+func New(conf *config.Client) *Client {
+	var user *User
+	if conf.TransmissionUsername != "" && conf.TransmissionPassword != "" {
+		user = &User{
+			Username: conf.TransmissionUsername,
+			Password: conf.TransmissionPassword,
+		}
+	}
 	return &Client{
-		URL:  url + endpoint,
+		Name: conf.ClientName,
+		URL:  conf.TransmissionAddr + endpoint,
 		User: user,
 	}
 }
