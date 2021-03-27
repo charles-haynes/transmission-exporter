@@ -107,45 +107,11 @@ func (sc *SessionStatsCollector) Describe(ch chan<- *prometheus.Desc) {
 
 // Collect implements the prometheus.Collector interface
 func (sc *SessionStatsCollector) Collect(ch chan<- prometheus.Metric) {
-	stats, err := sc.client.GetSessionStats()
-	if err != nil {
-		log.Printf("failed to get session stats: %v", err)
-		return
-	}
-
-	ch <- prometheus.MustNewConstMetric(
-		sc.DownloadSpeed,
-		prometheus.GaugeValue,
-		float64(stats.DownloadSpeed),
-	)
-	ch <- prometheus.MustNewConstMetric(
-		sc.UploadSpeed,
-		prometheus.GaugeValue,
-		float64(stats.UploadSpeed),
-	)
-	ch <- prometheus.MustNewConstMetric(
-		sc.TorrentsTotal,
-		prometheus.GaugeValue,
-		float64(stats.TorrentCount),
-	)
-	ch <- prometheus.MustNewConstMetric(
-		sc.TorrentsActive,
-		prometheus.GaugeValue,
-		float64(stats.ActiveTorrentCount),
-	)
-	ch <- prometheus.MustNewConstMetric(
-		sc.TorrentsPaused,
-		prometheus.GaugeValue,
-		float64(stats.PausedTorrentCount),
-	)
-
-	types := []string{"current", "cumulative"}
-	for _, t := range types {
-		var stateStats transmission.SessionStateStats
-		if t == types[0] {
-			stateStats = stats.CurrentStats
-		} else {
-			stateStats = stats.CumulativeStats
+	for _, client := range sc.clients {
+		stats, err := client.GetSessionStats()
+		if err != nil {
+			log.Printf("failed to get session stats: %v", err)
+			return
 		}
 
 		ch <- prometheus.MustNewConstMetric(
